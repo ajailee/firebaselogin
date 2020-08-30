@@ -20,7 +20,17 @@ class _HomeState extends State<Home>{
          title: Text('welcome ')
 
      ),
-     body: Text('Hi ${name} welcome  '),
+     body:Column(
+       mainAxisAlignment: MainAxisAlignment.center,
+       crossAxisAlignment: CrossAxisAlignment.stretch,
+       children: [
+         Card(
+           color: Colors.lightBlue,
+           child: Text('Hi ${name} welcome !!!',textAlign: TextAlign.center,style: TextStyle(fontSize: 20),),
+         ),
+       ],
+     )
+
    );
   }
 

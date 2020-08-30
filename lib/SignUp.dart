@@ -1,34 +1,32 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:login_auth/Home.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:login_auth/LoginPage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'Home.dart';
 
-class LoginPage extends StatefulWidget{
+class SignUp extends StatefulWidget{
   @override
-  _LoginPageState createState() {
-    return _LoginPageState();
-  }
+  SignUpState createState () =>SignUpState();
+
+
 }
-class _LoginPageState extends State<LoginPage> {
+class SignUpState extends State<SignUp> {
   String _email, _password;
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
-
   GlobalKey<FormState> formKey = new GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      backgroundColor: Colors.blueGrey,
-        appBar: AppBar(
-            title: Text("Sign in"),
-          backgroundColor: Colors.orange,
+      backgroundColor: Colors.amber,
+        appBar: AppBar(title: Text("Sign up"),
+            backgroundColor: Colors.amberAccent
         ),
         body: Form(
-
             key: formKey,
             child: Column(
-
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -36,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.emailAddress,
                   // ignore: missing_return
                   validator: (input) {
-                    if (!(input.contains('@'))) {
+                    if (!( input.contains('@'))) {
                       return 'Enter the Valid Email Id';
                     }
                   },
@@ -44,9 +42,11 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: InputDecoration(
                     labelText: 'Email',
                     hintText: 'Enter your Email Id',
+
                   ),
                 ),
                 TextFormField(
+
                   // ignore: missing_return
                   validator: (input) {
                     if (input.length < 8) {
@@ -63,8 +63,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 RaisedButton(
                     onPressed:
-                    signIn,
-                    child: Text('Sign in')
+                    signUp,
+                    child: Text('Sign up')
                 ),
               ],
             )
@@ -72,18 +72,55 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> signIn() async {
+  Future<void> signUp() async {
     // TODO Vaildate
 
     final _formState = formKey.currentState;
     if (_formState.validate()) {
-      // FireBase Auth
-      _formState.save();
+        _formState.save();
       try {
-        UserCredential user = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: _email, password: _password);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Home(user: user)));
+        UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
+        user.user.sendEmailVerification();
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(20.0)), //this right here
+                child: Container(
+                  height: 200,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'verify the email with 24 hrs'),
+                        ),
+                        SizedBox(
+                          width: 320.0,
+                          child: RaisedButton(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                            },
+                            child: Text(
+                              "ok",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            color: const Color(0xFF1BC0C5),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            });
+
       } catch (e) {
         print(e.message);
         showDialog(
@@ -104,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                         TextField(
                           decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Incorrect email or password'),
+                              hintText: 'The email address is already in used'),
                         ),
                         SizedBox(
                           width: 320.0,
@@ -125,7 +162,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               );
             });
+
+
       }
     }
   }
 }
+
+
+
+
+
+
